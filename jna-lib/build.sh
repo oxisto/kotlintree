@@ -10,23 +10,23 @@ TREE_SITTER_CPP_VERSION=0.19.0
 #tar -xzvf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
 
 export LIBDIR=`pwd`
+export INSTALL_PATH=`pwd`
 
 cd tree-sitter-$TREE_SITTER_VERSION
 
 if [ $ARCH == "Darwin" ]; then
-  export PREFIX=$INSTALL_PATH
-
-  export CFLAGS="-arch arm64 -arch x86_64"
-        export LDFLAGS="-arch arm64 -arch x86_64 -Wl,-rpath,@loader_path/"
-        make -j $MAKEJ
+        export PREFIX=$INSTALL_PATH
+        export LDFLAGS="-Wl,-rpath,@loader_path/"
+        make clean
+        make
         make install
         cd ../tree-sitter-cpp-0.19.0/src
         export PREFIX=$INSTALL_PATH
         export SONAME_MAJOR=0
         export SONAME_MINOR=0
         export SOEXT=dylib
-	    export SOEXTVER_MAJOR=$SONAME_MAJOR.dylib
-	    export SOEXTVER=$SONAME_MAJOR.$SONAME_MINOR.dylib
+	      export SOEXTVER_MAJOR=$SONAME_MAJOR.dylib
+	      export SOEXTVER=$SONAME_MAJOR.$SONAME_MINOR.dylib
         clang++ $CFLAGS $LDFLAGS -I. scanner.cc parser.c -dynamiclib -Wl,-install_name,$LIBDIR/libtree-sitter-cpp.$SONAME_MAJOR.dylib -o libtree-sitter-cpp.$SOEXTVER
         cp libtree-sitter-cpp.$SOEXTVER $LIBDIR
         cd $LIBDIR
@@ -36,5 +36,20 @@ if [ $ARCH == "Darwin" ]; then
 fi
 
 if [ $ARCH == "Linux" ]; then
-  echo "Linux"
+        export CFLAGS="-m64 -fPIC"
+          export PREFIX=$INSTALL_PATH
+          make clean
+                  make
+                  make install
+          export SONAME_MAJOR=0
+          export SONAME_MINOR=0
+          export SOEXT=so
+  	    export SOEXTVER_MAJOR=so.$SONAME_MAJOR
+  	    export SOEXTVER=so.$SONAME_MAJOR.$SONAME_MINOR
+          export LIBDIR=$PREFIX/lib
+          clang++ $CFLAGS $LDFLAGS -I. scanner.cc parser.c -shared -Wl,-soname,$LIBDIR/libtree-sitter-cpp.so.$SONAME_MAJOR -o libtree-sitter-cpp.$SOEXTVER
+          cp libtree-sitter-cpp.$SOEXTVER $LIBDIR
+          cd $LIBDIR
+          ln -sf libtree-sitter-cpp.$SOEXTVER libtree-sitter-cpp.$SOEXT
+  	    ln -sf libtree-sitter-cpp.$SOEXTVER libtree-sitter-cpp.$SOEXTVER_MAJOR
 fi

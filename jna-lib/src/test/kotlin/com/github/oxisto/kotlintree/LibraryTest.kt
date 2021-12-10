@@ -14,7 +14,7 @@ class LibraryTest {
         val log = Logger()
         log.log = object : LogFunc {
             override fun log(payload: Pointer?, type: Int, msg: String) {
-                //System.out.println(msg)
+                System.out.println(msg)
             }
         }
 

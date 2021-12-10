@@ -80,7 +80,7 @@ class Tree : PointerType() {
 
     val rootNode: Node
     get() {
-        TreeSitter.INSTANCE.ts_tree_test(this)
+        TreeSitter.INSTANCE.ts_tree_root_node(this)
         /*return  Node()
         TreeSitter.INSTANCE.ts_node_new(this, null, Length(), 0)
         return  Node()*/
@@ -120,8 +120,6 @@ interface TreeSitter : Library {
     fun ts_parser_delete(parser: Parser)
     fun ts_parser_parse_string(self: Parser, oldTree: Tree?, string: ByteArray, length: Int): Tree
     fun ts_tree_root_node(self: Tree?): Node
-
-    fun ts_tree_test(self: Tree?)
 
     fun ts_node_new(tree: Tree?, subtree: Pointer?, position: Structure, alias: Int): Node
     fun ts_tree_language(self: Tree): Language
