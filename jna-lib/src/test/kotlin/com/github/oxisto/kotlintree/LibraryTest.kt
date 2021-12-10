@@ -42,6 +42,9 @@ class LibraryTest {
         val notExists = root.namedChild(1)
         println(notExists)
         println(notExists.isNull)
+        println(notExists.string)
+        println(notExists.childCount)
+        println(notExists.namedChildCount)
 
         language = tree.language
         println(language)

@@ -3,11 +3,11 @@
 ARCH=`uname -s`
 TREE_SITTER_VERSION=0.20.1
 TREE_SITTER_CPP_VERSION=0.19.0
-wget https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v$TREE_SITTER_VERSION.tar.gz -O tree-sitter-$TREE_SITTER_VERSION.tar.gz
-wget https://github.com/tree-sitter/tree-sitter-cpp/archive/refs/tags/v$TREE_SITTER_CPP_VERSION.tar.gz -O tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
+wget -nc -q -O tree-sitter-$TREE_SITTER_VERSION.tar.gz https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v$TREE_SITTER_VERSION.tar.gz
+wget -nc -q -O tree-sitter-$TREE_SITTER_CPP_VERSION.tar.gz https://github.com/tree-sitter/tree-sitter-cpp/archive/refs/tags/v$TREE_SITTER_CPP_VERSION.tar.gz
 
-#tar -xzvf tree-sitter-$TREE_SITTER_VERSION.tar.gz
-#tar -xzvf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
+tar -xzkf tree-sitter-$TREE_SITTER_VERSION.tar.gz
+tar -xzkf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
 
 export LIBDIR=`pwd`/src/main/resources
 export INSTALL_PATH=`pwd`/src/main/resources
@@ -17,7 +17,6 @@ cd tree-sitter-$TREE_SITTER_VERSION
 if [ $ARCH == "Darwin" ]; then
         export PREFIX=$INSTALL_PATH
         export LDFLAGS="-Wl,-rpath,@loader_path/"
-        make clean
         make
         make install
         cd ../tree-sitter-cpp-0.19.0/src
@@ -38,7 +37,6 @@ fi
 if [ $ARCH == "Linux" ]; then
         export CFLAGS="-m64 -fPIC"
           export PREFIX=$INSTALL_PATH
-          make clean
                   make
                   make install
         cd ../tree-sitter-cpp-0.19.0/src

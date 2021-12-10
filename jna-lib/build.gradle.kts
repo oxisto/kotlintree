@@ -9,11 +9,16 @@
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.5.31"
+    id("org.jetbrains.kotlin.jvm") version "1.6.0"
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 }
+
+var buildNative = task<Exec>("buildNative") {
+    commandLine("./build.sh")
+}
+tasks.findByName("processResources")?.dependsOn(buildNative)
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -28,9 +33,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     implementation("net.java.dev.jna:jna:5.10.0")
-
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api("org.apache.commons:commons-math3:3.6.1")
 }
 
 testing {

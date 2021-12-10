@@ -3,28 +3,6 @@ package com.github.oxisto.kotlintree
 import com.sun.jna.*
 import com.sun.jna.Structure.ByValue
 
-
-interface CLibrary : Library {
-    fun printf(format: String?, vararg args: Any?)
-
-    companion object {
-        val INSTANCE = Native.load(
-            if (Platform.isWindows()) "msvcrt" else "c",
-            CLibrary::class.java
-        ) as CLibrary
-    }
-}
-
-/*open class Node: Structure(), Structure.ByValue {
-    @JvmField var context: Array<Int> = arrayOf(0,0,0,0)
-    @JvmField var id: Pointer? = null
-    @JvmField var tree: Tree? = null
-
-    override fun getFieldOrder() = listOf(
-        "context", "id", "tree"
-    )
-}*/
-
 class Language : Structure, Structure.ByReference {
     @JvmField var version: Int = 0
     @JvmField var symbol_count: Int = 0
@@ -41,36 +19,44 @@ class Language : Structure, Structure.ByReference {
     )
 }
 
+/**
+ * Represents `TSNode`. Note, that since `TSNode` is a structure, functions that return a [Node] such as [Tree.rootNode]
+ * will always return a (potentially) empty node structure rather than `null`. In the C API, the function [TreeSitter.ts_node_is_null]
+ * is needed to check before retrieving more information, e.g. by using [TreeSitter.ts_node_string].
+ *
+ * For convenience and extra safety, calls to the properties such as [string] will therefore internally check for [isNull]
+ * before further interacting with a node.
+ */
 class Node : Structure(), ByValue {
     @JvmField var context = intArrayOf(0, 0, 0, 0)
     @JvmField var id: Pointer? = null
     @JvmField var tree: Tree? = null
 
-    val string: String
+    val string: String?
     get() {
-        return TreeSitter.INSTANCE.ts_node_string(this)
+        return if(!isNull) { TreeSitter.INSTANCE.ts_node_string(this) } else { null }
     }
 
-    val type: String
+    val type: String?
     get() {
-        return TreeSitter.INSTANCE.ts_node_type(this)
+        return if(!isNull) { TreeSitter.INSTANCE.ts_node_string(this) } else { null }
     }
 
     val childCount: Int
     get() {
-        return TreeSitter.INSTANCE.ts_node_child_count(this)
+        return if(!isNull) { TreeSitter.INSTANCE.ts_node_child_count(this) } else { 0 }
     }
 
     val namedChildCount: Int
         get() {
-            return TreeSitter.INSTANCE.ts_node_named_child_count(this)
+            return if(!isNull) {  TreeSitter.INSTANCE.ts_node_named_child_count(this) }else { 0 }
         }
 
     val isNull: Boolean
     get() {
-        return TreeSitter.INSTANCE.ts_node_is_null(this)
+        // instead of calling ts_node_is_null we avoid the extra JNA round-trip and directly check, whether the id field is null (which is exactly what ts_node_is_null does)
+        return id == null
     }
-
 
     public override fun getFieldOrder(): List<String> {
         return listOf("context", "id", "tree")
@@ -135,10 +121,6 @@ class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()) {
     get(): Language? {
         return TreeSitter.INSTANCE.ts_parser_language(this)
     }
-
-    /*protected fun finalize() {
-        TreeSitter.INSTANCE.ts_parser_delete(this)
-    }*/
 
     fun parseString(oldTree: Tree?, string: String): Tree {
         return TreeSitter.INSTANCE.ts_parser_parse_string(this, oldTree, string.toByteArray(), string.length)
