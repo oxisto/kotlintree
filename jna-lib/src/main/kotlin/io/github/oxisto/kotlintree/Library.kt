@@ -39,7 +39,7 @@ class Node : Structure(), ByValue {
 
     val type: String?
     get() {
-        return if(!isNull) { TreeSitter.INSTANCE.ts_node_string(this) } else { null }
+        return if(!isNull) { TreeSitter.INSTANCE.ts_node_type(this) } else { null }
     }
 
     val childCount: Int
@@ -78,8 +78,21 @@ class Node : Structure(), ByValue {
         return id == null
     }
 
+    val nextNamedSibling: Node
+    get() {
+        return if(!isNull) { TreeSitter.INSTANCE.ts_node_next_named_sibling(this) } else { Node() }
+    }
+
     public override fun getFieldOrder(): List<String> {
         return listOf("context", "id", "tree")
+    }
+
+    fun child(index: Int): Node {
+        return if(!isNull) {
+            return TreeSitter.INSTANCE.ts_node_child(this, index)
+        } else {
+            Node()
+        }
     }
 
     fun namedChild(index: Int): Node {
@@ -185,8 +198,10 @@ interface TreeSitter : Library {
     fun ts_node_child_count(self: Node): Int
     fun ts_node_named_child_count(self: Node): Int
     fun ts_node_named_child(self: Node, childIndex: Int): Node
+    fun ts_node_child(self: Node, childIndex: Int): Node
     fun ts_node_is_null(node: Node): Boolean
     fun ts_node_child_by_field_name(self: Node, fieldName: String, fieldNameLength: Int): Node
+    fun ts_node_next_named_sibling(self: Node): Node
 
     fun ts_language_symbol_name(language: Language, symbol: Short): String
 
@@ -206,4 +221,43 @@ interface TreeSitterCpp : Library {
         ) as TreeSitterCpp
     }
 
+}
+
+/**
+ * A convenience function to quickly retrieve a (named) child of this node by the field name.
+ *
+ * Usage:
+ * ```
+ * var node = /* ... */
+ * var child = "field" of node
+ * ```
+ */
+infix fun String.of(node: Node): Node {
+    return node.childByFieldName(this)
+}
+
+/**
+ * A convenience function to quickly retrieve a child of this node by its index.
+ *
+ * Usage:
+ * ```
+ * var node = /* ... */
+ * var child = 0 of node
+ * ```
+ */
+infix fun Int.of(node: Node): Node {
+    return node.child(this)
+}
+
+/**
+ * A convenience function to quickly retrieve a named child of this node by its index.
+ *
+ * Usage:
+ * ```
+ * var node = /* ... */
+ * var child = 0 ofNamed node
+ * ```
+ */
+infix fun Int.ofNamed(node: Node): Node {
+    return node.namedChild(this)
 }
