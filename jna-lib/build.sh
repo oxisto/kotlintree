@@ -6,8 +6,8 @@ TREE_SITTER_CPP_VERSION=0.19.0
 wget https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v$TREE_SITTER_VERSION.tar.gz -O tree-sitter-$TREE_SITTER_VERSION.tar.gz
 wget https://github.com/tree-sitter/tree-sitter-cpp/archive/refs/tags/v$TREE_SITTER_CPP_VERSION.tar.gz -O tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
 
-tar -xzvf tree-sitter-$TREE_SITTER_VERSION.tar.gz
-tar -xzvf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
+#tar -xzvf tree-sitter-$TREE_SITTER_VERSION.tar.gz
+#tar -xzvf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
 
 export LIBDIR=`pwd`/src/main/resources
 export INSTALL_PATH=`pwd`/src/main/resources

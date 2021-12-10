@@ -1,6 +1,7 @@
 package com.github.oxisto.kotlintree
 
 import com.sun.jna.*
+import com.sun.jna.Structure.ByValue
 
 
 interface CLibrary : Library {
@@ -40,6 +41,46 @@ class Language : Structure, Structure.ByReference {
     )
 }
 
+class Node : Structure(), ByValue {
+    @JvmField var context = intArrayOf(0, 0, 0, 0)
+    @JvmField var id: Pointer? = null
+    @JvmField var tree: Tree? = null
+
+    val string: String
+    get() {
+        return TreeSitter.INSTANCE.ts_node_string(this)
+    }
+
+    val type: String
+    get() {
+        return TreeSitter.INSTANCE.ts_node_type(this)
+    }
+
+    val childCount: Int
+    get() {
+        return TreeSitter.INSTANCE.ts_node_child_count(this)
+    }
+
+    val namedChildCount: Int
+        get() {
+            return TreeSitter.INSTANCE.ts_node_named_child_count(this)
+        }
+
+    val isNull: Boolean
+    get() {
+        return TreeSitter.INSTANCE.ts_node_is_null(this)
+    }
+
+
+    public override fun getFieldOrder(): List<String> {
+        return listOf("context", "id", "tree")
+    }
+
+    fun namedChild(index: Int): Node {
+        return TreeSitter.INSTANCE.ts_node_named_child(this, index)
+    }
+}
+
 open class Length : Structure(), Structure.ByValue {
     @JvmField var bytes: Int = 0
     @JvmField var extent: Point = Point()
@@ -60,15 +101,14 @@ open class Point : Structure(), Structure.ByValue {
 
 class Logger : Structure(), Structure.ByValue {
     @JvmField var payload: Pointer? = null
-    //   void (*log)(void *payload, TSLogType, const char *);
-    @JvmField var log: LogFunc? = null
+    @JvmField var log: LogCallback? = null
 
     override fun getFieldOrder() = listOf(
         "payload", "log"
     )
 }
 
-interface LogFunc : Callback {
+interface LogCallback : Callback {
     fun log(payload: Pointer?, type: Int, msg: String)
 }
 
@@ -80,17 +120,14 @@ class Tree : PointerType() {
 
     val rootNode: Node
     get() {
-        TreeSitter.INSTANCE.ts_tree_root_node(this)
-        /*return  Node()
-        TreeSitter.INSTANCE.ts_node_new(this, null, Length(), 0)
-        return  Node()*/
-        return Node()
+        return TreeSitter.INSTANCE.ts_tree_root_node(this)
     }
 }
 
 class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()) {
+
     var language: Language?
-    set(language) {
+        set(language) {
         if(language != null) {
             TreeSitter.INSTANCE.ts_parser_set_language(this, language)
         }
@@ -99,9 +136,9 @@ class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()) {
         return TreeSitter.INSTANCE.ts_parser_language(this)
     }
 
-    protected fun finalize() {
+    /*protected fun finalize() {
         TreeSitter.INSTANCE.ts_parser_delete(this)
-    }
+    }*/
 
     fun parseString(oldTree: Tree?, string: String): Tree {
         return TreeSitter.INSTANCE.ts_parser_parse_string(this, oldTree, string.toByteArray(), string.length)
@@ -119,11 +156,17 @@ interface TreeSitter : Library {
 
     fun ts_parser_delete(parser: Parser)
     fun ts_parser_parse_string(self: Parser, oldTree: Tree?, string: ByteArray, length: Int): Tree
-    fun ts_tree_root_node(self: Tree?): Node
+    fun ts_tree_root_node(self: Tree): Node
 
     fun ts_node_new(tree: Tree?, subtree: Pointer?, position: Structure, alias: Int): Node
     fun ts_tree_language(self: Tree): Language
     fun ts_node_start_byte(node: Node): Int
+    fun ts_node_string(node: Node): String
+    fun ts_node_type(node: Node): String
+    fun ts_node_child_count(node: Node): Int
+    fun ts_node_named_child_count(node: Node): Int
+    fun ts_node_named_child(node: Node, childIndex: Int): Node
+    fun ts_node_is_null(node: Node): Boolean
 
     fun ts_language_symbol_name(language: Language, symbol: Short): String
 

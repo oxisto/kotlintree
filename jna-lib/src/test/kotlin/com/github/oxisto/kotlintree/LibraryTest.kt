@@ -8,13 +8,10 @@ import kotlin.test.Test
 
 class LibraryTest {
     @Test fun someLibraryMethodReturnsTrue() {
-
-        CLibrary.INSTANCE.printf("Hello World")
-
         val log = Logger()
-        log.log = object : LogFunc {
+        log.log = object : LogCallback {
             override fun log(payload: Pointer?, type: Int, msg: String) {
-                System.out.println(msg)
+                println(msg)
             }
         }
 
@@ -25,25 +22,34 @@ class LibraryTest {
         var language = parser.language
         println(language)
 
-        var struct = language?.pointer?.let { Language(it) }
-
-        struct?.read()
-
         val source = "int main(int argc, char** argv) {}"
 
         val tree = parser.parseString(null, source)
-        tree.rootNode
         println(tree)
+
+        val root = tree.rootNode
+        println(root)
+
+        println(root.string)
+        println(root.type)
+
+        val node = root.namedChild(0)
+        println(node)
+
+        println(node.string)
+        println(node.type)
+
+        val notExists = root.namedChild(1)
+        println(notExists)
+        println(notExists.isNull)
 
         language = tree.language
         println(language)
 
-        var node = Node()
-
-        var start = TreeSitter.INSTANCE.ts_node_start_byte(node)
+        val start = TreeSitter.INSTANCE.ts_node_start_byte(node)
         println(start)
 
-        var test = language.symbolName(1)
-        println(test)
+        /*var test = language.symbolName(1)
+        println(test)*/
     }
 }
