@@ -4,7 +4,7 @@ ARCH=`uname -s`
 TREE_SITTER_VERSION=0.20.1
 TREE_SITTER_CPP_VERSION=0.19.0
 wget -nc -q -O tree-sitter-$TREE_SITTER_VERSION.tar.gz https://github.com/tree-sitter/tree-sitter/archive/refs/tags/v$TREE_SITTER_VERSION.tar.gz
-wget -nc -q -O tree-sitter-$TREE_SITTER_CPP_VERSION.tar.gz https://github.com/tree-sitter/tree-sitter-cpp/archive/refs/tags/v$TREE_SITTER_CPP_VERSION.tar.gz
+wget -nc -q -O tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz https://github.com/tree-sitter/tree-sitter-cpp/archive/refs/tags/v$TREE_SITTER_CPP_VERSION.tar.gz
 
 tar -xzkf tree-sitter-$TREE_SITTER_VERSION.tar.gz
 tar -xzkf tree-sitter-cpp-$TREE_SITTER_CPP_VERSION.tar.gz
