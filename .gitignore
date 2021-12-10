@@ -7,8 +7,12 @@ bin
 
 .DS_Store
 *.dylib
+*.so*
+*.a
 .idea
 
 tree-sitter-*
 *.log
 
+pkgconfig
+include
