@@ -16,6 +16,27 @@ plugins {
     `maven-publish`
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions.jvmTarget = "11"
+}
+
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            pom {
+                artifactId = "kotlin-tree-jna"
+            }
+        }
+    }
+}
+
 var buildNative = task<Exec>("buildNative") {
     commandLine("./build.sh")
 }
@@ -33,7 +54,7 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("net.java.dev.jna:jna:5.10.0")
+    api("net.java.dev.jna:jna:5.10.0")
 }
 
 testing {

@@ -1,4 +1,4 @@
-package com.github.oxisto.kotlintree
+package io.github.oxisto.kotlintree
 
 import com.sun.jna.*
 import com.sun.jna.Structure.ByValue
@@ -52,6 +52,26 @@ class Node : Structure(), ByValue {
             return if(!isNull) {  TreeSitter.INSTANCE.ts_node_named_child_count(this) }else { 0 }
         }
 
+    val startByte: Int
+    get() {
+        return if(!isNull) {  TreeSitter.INSTANCE.ts_node_start_byte(this) } else { 0  }
+    }
+
+    val endByte: Int
+        get() {
+            return if(!isNull) {  TreeSitter.INSTANCE.ts_node_end_byte(this) } else { 0  }
+        }
+
+    val startPoint: Point
+        get() {
+            return if(!isNull) {  TreeSitter.INSTANCE.ts_node_start_point(this) } else { Point()  }
+        }
+
+    val endPoint: Point
+        get() {
+            return if(!isNull) {  TreeSitter.INSTANCE.ts_node_end_point(this) } else { Point()  }
+        }
+
     val isNull: Boolean
     get() {
         // instead of calling ts_node_is_null we avoid the extra JNA round-trip and directly check, whether the id field is null (which is exactly what ts_node_is_null does)
@@ -63,8 +83,22 @@ class Node : Structure(), ByValue {
     }
 
     fun namedChild(index: Int): Node {
-        return TreeSitter.INSTANCE.ts_node_named_child(this, index)
+        return if(!isNull) {
+            return TreeSitter.INSTANCE.ts_node_named_child(this, index)
+        } else {
+            Node()
+        }
     }
+
+    fun childByFieldName(fieldName: String): Node {
+        return if(!isNull) {
+            TreeSitter.INSTANCE.ts_node_child_by_field_name(this, fieldName, fieldName.length)
+        } else {
+            Node()
+        }
+    }
+
+    // TODO: implement Iterable
 }
 
 open class Length : Structure(), Structure.ByValue {
@@ -142,13 +176,17 @@ interface TreeSitter : Library {
 
     fun ts_node_new(tree: Tree?, subtree: Pointer?, position: Structure, alias: Int): Node
     fun ts_tree_language(self: Tree): Language
-    fun ts_node_start_byte(node: Node): Int
-    fun ts_node_string(node: Node): String
-    fun ts_node_type(node: Node): String
-    fun ts_node_child_count(node: Node): Int
-    fun ts_node_named_child_count(node: Node): Int
-    fun ts_node_named_child(node: Node, childIndex: Int): Node
+    fun ts_node_start_byte(self: Node): Int
+    fun ts_node_end_byte(self: Node): Int
+    fun ts_node_start_point(self: Node): Point
+    fun ts_node_end_point(self: Node): Point
+    fun ts_node_string(self: Node): String
+    fun ts_node_type(self: Node): String
+    fun ts_node_child_count(self: Node): Int
+    fun ts_node_named_child_count(self: Node): Int
+    fun ts_node_named_child(self: Node, childIndex: Int): Node
     fun ts_node_is_null(node: Node): Boolean
+    fun ts_node_child_by_field_name(self: Node, fieldName: String, fieldNameLength: Int): Node
 
     fun ts_language_symbol_name(language: Language, symbol: Short): String
 
