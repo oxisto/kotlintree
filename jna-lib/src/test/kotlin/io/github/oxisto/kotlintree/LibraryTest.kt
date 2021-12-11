@@ -4,17 +4,20 @@
 package io.github.oxisto.kotlintree
 
 import com.sun.jna.Pointer
+import io.github.oxisto.kotlintree.jvm.*
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 class LibraryTest {
-    @Test fun someLibraryMethodReturnsTrue() {
+    @Test
+    fun someLibraryMethodReturnsTrue() {
         val log = Logger()
-        log.log = object : LogCallback {
-            override fun log(payload: Pointer?, type: Int, msg: String) {
-                println(msg)
+        log.log =
+            object : LogCallback {
+                override fun log(payload: Pointer?, type: Int, msg: String) {
+                    println(msg)
+                }
             }
-        }
 
         val parser = Parser()
         TreeSitter.INSTANCE.ts_parser_set_logger(parser, log)
