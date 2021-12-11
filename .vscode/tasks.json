@@ -3,24 +3,24 @@
 	"tasks": [
 		{
 			"type": "gradle",
-			"id": "/Users/oxisto/Repositories/kotlin-treelib:buildlib",
-			"script": "lib:build",
+			"id": "build",
+			"script": "build",
 			"description": "Assembles and tests this project.",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"project": "lib",
-			"buildFile": "/Users/oxisto/Repositories/kotlin-tree/lib/build.gradle.kts",
+			"project": "kotlintree",
+			"buildFile": "${workspaceFolder}/build.gradle.kts",
 			"rootProject": "kotlin-tree",
-			"projectFolder": "/Users/oxisto/Repositories/kotlin-tree",
-			"workspaceFolder": "/Users/oxisto/Repositories/kotlin-tree",
+			"projectFolder": "${workspaceFolder}",
+			"workspaceFolder": "${workspaceFolder}",
 			"args": "",
 			"javaDebug": false,
 			"problemMatcher": [
 				"$gradle"
 			],
-			"label": "gradle: lib:build"
+			"label": "gradle: build",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
-	]
+	],
 }
