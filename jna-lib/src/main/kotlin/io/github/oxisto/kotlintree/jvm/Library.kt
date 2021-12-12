@@ -104,6 +104,11 @@ class Node : Structure(), ByValue, Iterable<Node> {
             }
         }
 
+    val isNamed: Boolean
+        get() {
+            return TreeSitter.INSTANCE.ts_node_is_named(this)
+        }
+
     val isNull: Boolean
         get() {
             // instead of calling ts_node_is_null we avoid the extra JNA round-trip and directly
@@ -252,6 +257,7 @@ interface TreeSitter : Library {
     fun ts_node_named_child(self: Node, childIndex: Int): Node
     fun ts_node_child(self: Node, childIndex: Int): Node
     fun ts_node_next_sibling(self: Node): Node
+    fun ts_node_is_named(self: Node): Boolean
     fun ts_node_is_null(node: Node): Boolean
     fun ts_node_child_by_field_name(self: Node, fieldName: String, fieldNameLength: Int): Node
     fun ts_node_next_named_sibling(self: Node): Node
