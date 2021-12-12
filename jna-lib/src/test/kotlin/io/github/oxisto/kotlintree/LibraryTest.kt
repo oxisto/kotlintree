@@ -58,6 +58,19 @@ class LibraryTest {
         val start = TreeSitter.INSTANCE.ts_node_start_byte(node)
         println(start)
 
+        val cursor = root.newCursor()
+        println(cursor?.currentNode?.string)
+
+        // cursor.gotoNextSibling()
+
+        /*for (childNode in root) {
+            println(childNode)
+        }*/
+
+        val func = 0 of root
+        val children = func.toList()
+        println(children.map { it.string })
+
         /*var test = language.symbolName(1)
         println(test)*/
     }

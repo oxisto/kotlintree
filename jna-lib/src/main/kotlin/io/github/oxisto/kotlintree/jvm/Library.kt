@@ -26,7 +26,7 @@ class Language : Structure, Structure.ByReference {
  * For convenience and extra safety, calls to the properties such as [string] will therefore
  * internally check for [isNull] before further interacting with a node.
  */
-class Node : Structure(), ByValue {
+class Node : Structure(), ByValue, Iterable<Node> {
     @JvmField var context = intArrayOf(0, 0, 0, 0)
     @JvmField var id: Pointer? = null
     @JvmField var tree: Tree? = null
@@ -147,7 +147,19 @@ class Node : Structure(), ByValue {
         }
     }
 
-    // TODO: implement Iterable
+    fun newCursor(): TreeCursor? {
+        return if (!isNull) {
+            val cursor = TreeSitter.INSTANCE.ts_tree_cursor_new(this)
+            cursor.gotoFirstChild()
+            cursor
+        } else {
+            null
+        }
+    }
+
+    override fun iterator(): Iterator<Node> {
+        return newCursor() ?: emptyList<Node>().iterator()
+    }
 }
 
 open class Length : Structure(), Structure.ByValue {
@@ -235,11 +247,19 @@ interface TreeSitter : Library {
     fun ts_node_named_child_count(self: Node): Int
     fun ts_node_named_child(self: Node, childIndex: Int): Node
     fun ts_node_child(self: Node, childIndex: Int): Node
+    fun ts_node_next_sibling(self: Node): Node
     fun ts_node_is_null(node: Node): Boolean
     fun ts_node_child_by_field_name(self: Node, fieldName: String, fieldNameLength: Int): Node
     fun ts_node_next_named_sibling(self: Node): Node
 
     fun ts_language_symbol_name(language: Language, symbol: Short): String
+
+    fun ts_tree_cursor_new(node: Node): TreeCursor
+    fun ts_tree_cursor_goto_first_child(self: TreeCursor): Boolean
+    fun ts_tree_cursor_goto_next_sibling(self: TreeCursor)
+    fun ts_tree_cursor_goto_parent(self: TreeCursor)
+    fun ts_tree_cursor_current_field_name(self: TreeCursor): String?
+    fun ts_tree_cursor_current_node(self: TreeCursor): Node
 
     companion object {
         val INSTANCE = Native.load("tree-sitter", TreeSitter::class.java) as TreeSitter
