@@ -9,20 +9,17 @@ class TreeCursor : Structure(), Structure.ByValue, Iterator<Node> {
     @JvmField val id: Pointer? = null
     @JvmField val context = intArrayOf(0, 0)
 
-    var first = true
+    var init = false
 
     fun gotoFirstChild(): Boolean {
         val b = TreeSitter.INSTANCE.ts_tree_cursor_goto_first_child(this)
-        if (b) {
-            first = true
-        }
+        init = true
 
         return b
     }
 
     fun gotoNextSibling() {
         TreeSitter.INSTANCE.ts_tree_cursor_goto_next_sibling(this)
-        first = false
     }
 
     override fun getFieldOrder(): List<String> {
@@ -30,9 +27,10 @@ class TreeCursor : Structure(), Structure.ByValue, Iterator<Node> {
     }
 
     override fun hasNext(): Boolean {
-        if (first) {
+        if (!init) {
             return true
         }
+
         return !TreeSitter.INSTANCE.ts_node_next_sibling(currentNode).isNull
     }
 
@@ -47,7 +45,12 @@ class TreeCursor : Structure(), Structure.ByValue, Iterator<Node> {
         }
 
     override fun next(): Node {
-        gotoNextSibling()
+        if (!init) {
+            gotoFirstChild()
+        } else {
+            gotoNextSibling()
+        }
+
         return currentNode
     }
 }

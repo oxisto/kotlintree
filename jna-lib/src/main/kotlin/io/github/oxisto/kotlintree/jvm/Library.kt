@@ -2,6 +2,7 @@ package io.github.oxisto.kotlintree.jvm
 
 import com.sun.jna.*
 import com.sun.jna.Structure.ByValue
+import java.io.Closeable
 
 class Language : Structure, Structure.ByReference {
     @JvmField var version: Int = 0
@@ -150,15 +151,14 @@ class Node : Structure(), ByValue, Iterable<Node> {
     fun newCursor(): TreeCursor? {
         return if (!isNull) {
             val cursor = TreeSitter.INSTANCE.ts_tree_cursor_new(this)
-            cursor.gotoFirstChild()
             cursor
         } else {
             null
         }
     }
 
-    override fun iterator(): Iterator<Node> {
-        return newCursor() ?: emptyList<Node>().iterator()
+    override fun iterator(): TreeCursor {
+        return newCursor() ?: TreeCursor()
     }
 }
 
@@ -199,7 +199,7 @@ class Tree : PointerType() {
         }
 }
 
-class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()) {
+class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()), Closeable {
 
     var language: Language?
         set(language) {
@@ -218,6 +218,10 @@ class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()) {
             string.toByteArray(),
             string.length
         )
+    }
+
+    override fun close() {
+        TreeSitter.INSTANCE.ts_parser_delete(this)
     }
 }
 
