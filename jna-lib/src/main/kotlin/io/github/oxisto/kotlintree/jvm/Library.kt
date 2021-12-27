@@ -192,6 +192,25 @@ interface LogCallback : Callback {
     fun log(payload: Pointer?, type: Int, msg: String)
 }
 
+class InputEdit : Structure(), Structure.ByReference {
+    @JvmField var start_byte: Int = 0
+    @JvmField var old_end_byte: Int = 0
+    @JvmField var new_end_byte: Int = 0
+    @JvmField var start_point: Point = Point()
+    @JvmField var old_end_point: Point = Point()
+    @JvmField var new_end_point: Point = Point()
+
+    override fun getFieldOrder() =
+        listOf(
+            "start_byte",
+            "old_end_byte",
+            "new_end_byte",
+            "start_point",
+            "old_end_point",
+            "new_end_point"
+        )
+}
+
 class Tree : PointerType() {
     val language: Language
         get() {
@@ -202,9 +221,13 @@ class Tree : PointerType() {
         get() {
             return TreeSitter.INSTANCE.ts_tree_root_node(this)
         }
+
+    fun edit(input: InputEdit) {
+        return TreeSitter.INSTANCE.ts_tree_edit(this, input)
+    }
 }
 
-class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()), Closeable {
+open class Parser : PointerType(TreeSitter.INSTANCE.ts_parser_new()), Closeable {
 
     var language: Language?
         set(language) {
@@ -243,6 +266,7 @@ interface TreeSitter : Library {
     fun ts_parser_delete(parser: Parser)
     fun ts_parser_parse_string(self: Parser, oldTree: Tree?, string: ByteArray, length: Int): Tree
     fun ts_tree_root_node(self: Tree): Node
+    fun ts_tree_edit(self: Tree, input: InputEdit)
 
     fun ts_node_new(tree: Tree?, subtree: Pointer?, position: Structure, alias: Int): Node
     fun ts_tree_language(self: Tree): Language
