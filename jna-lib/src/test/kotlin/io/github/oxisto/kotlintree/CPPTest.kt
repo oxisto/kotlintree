@@ -16,7 +16,7 @@ class CPPTest {
         val root = tree.rootNode
 
         val s =
-            "(translation_unit (function_definition type: (primitive_type) declarator: (function_declarator declarator: (identifier) parameters: (parameter_list)) body: (compound_statement)) (preproc_def name: (identifier) value: (preproc_arg)) (function_definition type: (primitive_type) declarator: (function_declarator declarator: (identifier) parameters: (parameter_list)) body: (compound_statement (return_statement (number_literal)))))"
+            "(translation_unit (function_definition type: (primitive_type) declarator: (function_declarator declarator: (identifier) parameters: (parameter_list)) body: (compound_statement)) (preproc_def name: (identifier) value: (preproc_arg)) (preproc_def name: (identifier) value: (preproc_arg)) (function_definition type: (primitive_type) declarator: (function_declarator declarator: (identifier) parameters: (parameter_list)) body: (compound_statement (return_statement (binary_expression left: (number_literal) right: (number_literal))))))"
 
         assertEquals(s, root.string)
     }

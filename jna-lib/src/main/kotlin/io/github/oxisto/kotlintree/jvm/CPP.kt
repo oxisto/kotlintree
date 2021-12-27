@@ -11,7 +11,7 @@ class CppParser : Parser() {
 
         val input = Input(file.readText())
 
-        var tree = this.parseString(null, input.string)
+        val tree = this.parseString(null, input.string)
 
         return preprocess(tree, input, file)
     }
@@ -29,12 +29,17 @@ class CppParser : Parser() {
         var t = tree
         var s = input
 
+        var changed = false
+
         // TODO: replace with query
-        val root = tree.rootNode
+        var root = t.rootNode
 
         println("pre-tree: ${t.rootNode.string}")
 
-        for (child in root) {
+        var it = root.iterator()
+
+        while (it.hasNext()) {
+            var child = it.next()
             if (child.type == "preproc_include") {
                 val pathNode = "path" of child
                 // TODO: differentiate between "test.h" and <test.h>
@@ -53,7 +58,8 @@ class CppParser : Parser() {
                     // one more line to compensate for the #include line
                     headerInput = "$headerInput\n"
 
-                    editTree(input, child, headerInput, tree)
+                    editTree(input, child, headerInput, t)
+                    changed = true
                 }
             } else if (child.type == "preproc_def") {
                 val nameNode = "name" of child
@@ -67,20 +73,31 @@ class CppParser : Parser() {
                 // add it to the symbols list
                 symbols[name] = value
             } else {
-                replaceIdentifiers(tree, child, input)
+                changed = replaceIdentifiers(t, child, input)
+            }
+
+            if (changed) {
+                // we should do this inside the for-loop, which is probably not that easy so we can
+                // it
+                // recursively
+                println("Re-parsing")
+                t = this.parseString(t, input.string)
+                changed = false
+
+                // update the iterator (this re-parses the file several times and is slow and needs
+                // to be improved)
+                it = t.rootNode.iterator()
             }
         }
-
-        // we should do this inside the for-loop, which is probably not that easy so we can it
-        // recursively
-        t = this.parseString(tree, input.string)
 
         println("post-tree: ${t.rootNode.string}")
 
         return t
     }
 
-    private fun replaceIdentifiers(tree: Tree, node: Node, input: Input) {
+    private fun replaceIdentifiers(tree: Tree, node: Node, input: Input): Boolean {
+        var changed = false
+
         for (i in 0 until node.namedChildCount) {
             val child = i ofNamed node
             if (child.type == "identifier") {
@@ -90,11 +107,17 @@ class CppParser : Parser() {
                     println("Replacing $identifier with $value")
 
                     editTree(input, child, value, tree)
+
+                    changed = true
                 }
             } else {
-                replaceIdentifiers(tree, child, input)
+                if (replaceIdentifiers(tree, child, input)) {
+                    changed = true
+                }
             }
         }
+
+        return changed
     }
 
     private fun editTree(input: Input, child: Node, value: String, tree: Tree) {

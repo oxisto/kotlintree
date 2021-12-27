@@ -3,5 +3,5 @@
 #define A 2
 
 int main() {
-    return A;
+    return A + B;
 }
