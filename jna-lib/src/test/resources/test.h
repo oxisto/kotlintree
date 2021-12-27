@@ -1,0 +1,1 @@
+int header_function() {}
