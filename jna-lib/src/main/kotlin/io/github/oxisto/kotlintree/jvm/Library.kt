@@ -289,11 +289,11 @@ interface TreeSitter : Library {
     fun ts_language_symbol_name(language: Language, symbol: Short): String
 
     fun ts_tree_cursor_new(node: Node): TreeCursor
-    fun ts_tree_cursor_goto_first_child(self: TreeCursor): Boolean
-    fun ts_tree_cursor_goto_next_sibling(self: TreeCursor)
-    fun ts_tree_cursor_goto_parent(self: TreeCursor)
-    fun ts_tree_cursor_current_field_name(self: TreeCursor): String?
-    fun ts_tree_cursor_current_node(self: TreeCursor): Node
+    fun ts_tree_cursor_goto_first_child(self: Pointer): Boolean
+    fun ts_tree_cursor_goto_next_sibling(self: Pointer)
+    fun ts_tree_cursor_goto_parent(self: Pointer)
+    fun ts_tree_cursor_current_field_name(self: Pointer): String?
+    fun ts_tree_cursor_current_node(self: Pointer): Node
 
     companion object {
         val INSTANCE = Native.load("tree-sitter", TreeSitter::class.java) as TreeSitter

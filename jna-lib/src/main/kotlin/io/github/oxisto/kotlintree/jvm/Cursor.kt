@@ -12,14 +12,14 @@ class TreeCursor : Structure(), Structure.ByValue, Iterator<Node> {
     var init = false
 
     fun gotoFirstChild(): Boolean {
-        val b = TreeSitter.INSTANCE.ts_tree_cursor_goto_first_child(this)
+        val b = TreeSitter.INSTANCE.ts_tree_cursor_goto_first_child(this.pointer)
         init = true
 
         return b
     }
 
     fun gotoNextSibling() {
-        TreeSitter.INSTANCE.ts_tree_cursor_goto_next_sibling(this)
+        TreeSitter.INSTANCE.ts_tree_cursor_goto_next_sibling(this.pointer)
     }
 
     override fun getFieldOrder(): List<String> {
@@ -36,12 +36,12 @@ class TreeCursor : Structure(), Structure.ByValue, Iterator<Node> {
 
     val currentNode: Node
         get() {
-            return TreeSitter.INSTANCE.ts_tree_cursor_current_node(this)
+            return TreeSitter.INSTANCE.ts_tree_cursor_current_node(this.pointer)
         }
 
     val currentFieldName: String?
         get() {
-            return TreeSitter.INSTANCE.ts_tree_cursor_current_field_name(this)
+            return TreeSitter.INSTANCE.ts_tree_cursor_current_field_name(this.pointer)
         }
 
     override fun next(): Node {
