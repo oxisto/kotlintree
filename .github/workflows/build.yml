@@ -1,0 +1,23 @@
+name: 'Build'
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'master'
+  workflow_dispatch:
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=true -Dorg.gradle.parallel=true -Dorg.gradle.welcome=never
+  GPG_SEC: ${{ secrets.PGP_SEC }}
+  GPG_PASSWORD: ${{ secrets.PGP_PASSWORD }}
+
+jobs:
+  build-native:
+    name: 'Build native code'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
